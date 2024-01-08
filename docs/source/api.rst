@@ -91,10 +91,10 @@ Fields
         Stores ``for_register`` in the list of field values
 
     .. note::
-        When creating your own numeric data types, implement their method :py:method:`get_precision`
+        When creating your own numeric data types, implement their method ``get_precision``
 
     .. note::
-        When creating your own iterable data types, implement their method :py:method:`generate`
+        When creating your own iterable data types, implement their method ``generate``
 
     Class :py:class:`Field` is the base class for all internal data types
 
