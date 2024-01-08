@@ -74,7 +74,7 @@ Fields
 
     .. py:method:: generate(length: int)
 
-        :raises NotImplemented: If a method is not implemented in iterable data types when using a validator :py:class:`Length'
+        :raises NotImplemented: If a method is not implemented in iterable data types when using a validator :py:class:`Length`
 
     .. py:method:: get_step()
 
