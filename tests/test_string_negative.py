@@ -1,13 +1,13 @@
 from tests import has_data_type, Unique
-from fields import String
-from utils import Missing
-from validate import Length, Equal, OneOf
+from sgen.fields import String
+from sgen.utils import Missing
+from sgen.validate import Length, Equal, OneOf
 
 
 def test_string():
     field = String()
 
-    negative_values = field.negative()
+    negative_values = list(field.negative())
 
     assert len(negative_values) == 1
     assert isinstance(negative_values[0], int)
@@ -16,13 +16,13 @@ def test_string():
 def test_not_allow_none():
     field = String(allow_none=False)
 
-    assert None in field.negative()
+    assert None in list(field.negative())
 
 
 def test_required():
     field = String(required=True)
 
-    assert has_data_type(field.negative(), Missing)
+    assert has_data_type(list(field.negative()), Missing)
 
 
 def test_negative_data_from():
@@ -31,7 +31,7 @@ def test_negative_data_from():
 
     field = String(negative_data_from=negative_data_from)
 
-    assert field.negative() == list(negative_data_from())
+    assert list(field.negative()) == list(negative_data_from())
 
 
 # ==================================================
@@ -45,7 +45,7 @@ def test_length():
 
     field = String(validate=Length(min=min_, max=max_))
 
-    for value in field.negative():
+    for value in list(field.negative()):
         if isinstance(value, str):
             assert len(value) in [min_ - 1, max_ + 1]
 
@@ -65,7 +65,7 @@ def test_length_allow_none_required():
         required=True,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     for value in field_values:
         if isinstance(value, str):
@@ -91,7 +91,7 @@ def test_length_default():
         default=default,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     for value in field_values:
         if isinstance(value, str):
@@ -102,13 +102,13 @@ def test_length_default():
 
 
 def test_equal():
-    comparable = Unique()
+    comparable = 'str_text'
 
     field = String(
         validate=Equal(comparable=comparable)
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     assert comparable not in field_values
     assert None not in field_values
@@ -116,7 +116,7 @@ def test_equal():
 
 
 def test_equal_allow_none_required():
-    comparable = Unique()
+    comparable = 'str_text'
 
     field = String(
         validate=Equal(comparable=comparable),
@@ -124,7 +124,7 @@ def test_equal_allow_none_required():
         required=True,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     assert comparable not in field_values
     assert None in field_values
@@ -134,8 +134,8 @@ def test_equal_allow_none_required():
 
 
 def test_equal_default():
-    comparable = Unique()
-    default = Unique()
+    comparable = 'str_text'
+    default = 'str_text_def'
 
     field = String(
         validate=Equal(comparable=comparable),
@@ -143,20 +143,20 @@ def test_equal_default():
         default=default,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     assert default not in field_values
     assert None in field_values
 
 
 def test_one_of():
-    choices = [Unique(), Unique(), Unique()]
+    choices = ['a_1', 'a_2', 'a_3']
 
     field = String(
         validate=OneOf(choices=choices),
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     for value in choices:
         assert value not in field_values
@@ -167,7 +167,7 @@ def test_one_of():
 
 
 def test_one_of_allow_none_required():
-    choices = [Unique(), Unique(), Unique()]
+    choices = ['a_1', 'a_2', 'a_3']
 
     field = String(
         validate=OneOf(choices=choices),
@@ -175,7 +175,7 @@ def test_one_of_allow_none_required():
         required=True,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     for value in choices:
         assert value not in field_values
@@ -186,8 +186,8 @@ def test_one_of_allow_none_required():
 
 
 def test_one_of_default():
-    choices = [Unique(), Unique(), Unique()]
-    default = Unique()
+    choices = ['a_1', 'a_2', 'a_3']
+    default = 'str_text_def'
 
     field = String(
         validate=OneOf(choices=choices),
@@ -195,7 +195,7 @@ def test_one_of_default():
         default=default,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     for value in choices:
         assert value not in field_values

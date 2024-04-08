@@ -5,8 +5,8 @@ Quickstart
 
 In this guide will cover:
 
-* :ref:`schema-definition`
-* :ref:`data-generation`
+* Schema testing
+* Data generation
 
 .. _model-definition:
 
@@ -50,12 +50,15 @@ SGen contains many :ref:`fields`
     if __name__ == '__main__':
         main()
 
-    # [ {'name': None, 'pet': {'name': None}},
+    # [ {'name': None, 'pet': None},
+    #   {'name': None, 'pet': {'name': None}},
     #   {'name': None, 'pet': {}},
-    #   {'name': None, 'pet': {'name': 'fszxSnf'}},
+    #   {'name': None, 'pet': {'name': 'DZ'}},
+    #   {'pet': None},
     #   {'pet': {'name': None}},
     #   {'pet': {}},
-    #   {'pet': {'name': 'RzGTdNzhr'}},
-    #   {'name': 'ttr', 'pet': {'name': None}},
-    #   {'name': 'ttr', 'pet': {}},
-    #   {'name': 'ttr', 'pet': {'name': 'ZpvMOyR'}}]
+    #   {'pet': {'name': 'MDKcQ'}},
+    #   {'name': 'yjKhS', 'pet': None},
+    #   {'name': 'yjKhS', 'pet': {'name': None}},
+    #   {'name': 'yjKhS', 'pet': {}},
+    #   {'name': 'yjKhS', 'pet': {'name': 'fOYfs'}}]

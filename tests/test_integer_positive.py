@@ -1,13 +1,13 @@
-from tests import has_data_type, Unique
-from fields import Integer
-from validate import Range, Equal, OneOf
-from utils import Missing
+from tests import has_data_type
+from sgen.fields import Integer
+from sgen.validate import Range, Equal, OneOf
+from sgen.utils import Missing
 
 
 def test_integer():
     field = Integer()
 
-    positive_values = field.positive()
+    positive_values = list(field.positive())
 
     assert len(positive_values) == 3
 
@@ -19,20 +19,20 @@ def test_integer():
 def test_allow_none():
     field = Integer(allow_none=False)
 
-    assert None not in field.positive()
+    assert None not in list(field.positive())
 
 
 def test_required():
     field = Integer(required=True)
 
-    assert not has_data_type(field.positive(), Missing)
+    assert not has_data_type(list(field.positive()), Missing)
 
 
 def test_default():
     default = -9999
     field = Integer(default=default)
 
-    assert default in field.positive()
+    assert default in list(field.positive())
 
 
 def test_positive_data_from():
@@ -41,7 +41,7 @@ def test_positive_data_from():
 
     field = Integer(positive_data_from=positive_data_generator)
 
-    assert field.positive() == list(positive_data_generator())
+    assert list(field.positive()) == list(positive_data_generator())
 
 
 # ===================================================
@@ -57,7 +57,7 @@ def test_range():
             min=min_, max=max_
         )
     )
-    positive_data = field.positive()
+    positive_data = list(field.positive())
     assert min_ in positive_data
     assert max_ in positive_data
 
@@ -77,7 +77,7 @@ def test_range_allow_none_required():
         required=True,
     )
 
-    positive_data = field.positive()
+    positive_data = list(field.positive())
 
     assert min_ + 1 in positive_data
     assert max_ - 1 in positive_data
@@ -88,7 +88,7 @@ def test_range_allow_none_required():
 def test_range_inclusive():
     min_ = -999
     max_ = 998
-    default = Unique()
+    default = 619234
 
     field = Integer(
         validate=Range(
@@ -101,7 +101,7 @@ def test_range_inclusive():
         default=default,
     )
 
-    positive_data = field.positive()
+    positive_data = list(field.positive())
 
     assert min_ + 1 in positive_data
     assert max_ - 1 in positive_data
@@ -110,13 +110,13 @@ def test_range_inclusive():
 
 
 def test_equal():
-    comparable = Unique()
+    comparable = 619234
 
     field = Integer(
         validate=Equal(comparable=comparable)
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     assert comparable in field_values
     assert None in field_values
@@ -124,7 +124,7 @@ def test_equal():
 
 
 def test_equal_allow_none_required():
-    comparable = Unique()
+    comparable = 619234
 
     field = Integer(
         validate=Equal(comparable=comparable),
@@ -132,7 +132,7 @@ def test_equal_allow_none_required():
         required=True,
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     assert comparable in field_values
     assert None not in field_values
@@ -140,8 +140,8 @@ def test_equal_allow_none_required():
 
 
 def test_equal_default():
-    comparable = Unique()
-    default = Unique()
+    comparable = 619234
+    default = 548930
 
     field = Integer(
         validate=Equal(comparable=comparable),
@@ -149,20 +149,20 @@ def test_equal_default():
         default=default,
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     assert default in field_values
     assert None not in field_values
 
 
 def test_one_of():
-    choices = [Unique(), Unique(), Unique()]
+    choices = [1111, 2222, 3333]
 
     field = Integer(
         validate=OneOf(choices=choices),
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     for value in choices:
         assert value in field_values
@@ -172,7 +172,7 @@ def test_one_of():
 
 
 def test_one_of_allow_none_required():
-    choices = [Unique(), Unique(), Unique()]
+    choices = [1111, 2222, 3333]
 
     field = Integer(
         validate=OneOf(choices=choices),
@@ -180,7 +180,7 @@ def test_one_of_allow_none_required():
         required=True,
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     for value in choices:
         assert value in field_values
@@ -190,8 +190,8 @@ def test_one_of_allow_none_required():
 
 
 def test_one_of_default():
-    choices = [Unique(), Unique(), Unique()]
-    default = Unique()
+    choices = [1111, 2222, 3333]
+    default = 619234
 
     field = Integer(
         validate=OneOf(choices=choices),
@@ -199,7 +199,7 @@ def test_one_of_default():
         default=default,
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     for value in choices:
         assert value in field_values

@@ -83,9 +83,3 @@ class SGen:
                     lambda field_value: not isinstance(field_value[1], Missing),
                     dataset
                 ))
-
-        for dataset in self._generate(fields=self.fields(is_positive=False)):
-            yield dict(filter(
-                lambda field_value: not isinstance(field_value[1], Missing),
-                dataset
-            ))

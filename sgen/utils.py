@@ -4,12 +4,18 @@ from inspect import isgeneratorfunction, isgenerator
 class Missing:
     """Represents an instance of a missing field"""
 
+    is_missing = True
+
     def __repr__(self):
         return "<sgen.missing>"
 
 
 class ValuesStorage(list):
-    """Represents storage for field values"""
+    """
+    Represents storage for field values
+
+    :note: Implemented because True in [1] -> True, but should be False
+    """
 
     def __contains__(self, item):
         present = list(filter(

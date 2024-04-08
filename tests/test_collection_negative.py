@@ -1,13 +1,13 @@
-from fields import (
+from sgen.fields import (
     Collection,
     String,
     Float,
     Boolean,
     Integer,
 )
-from validate import Length
+from sgen.validate import Length
 from tests import Unique, has_data_type
-from utils import Missing
+from sgen.utils import Missing
 
 DATA_TYPES = [
     # [Тип поля, представляемый им тип, противоположный тип]
@@ -22,7 +22,7 @@ def test_simple():
     for type_ in DATA_TYPES:
         field = Collection(data_type=type_[0]())
 
-        field_values = field.negative()
+        field_values = list(field.negative())
 
         assert None not in field_values
         assert not has_data_type(field_values, Missing)
@@ -57,7 +57,7 @@ def test_length_validator():
             required=True,
         )
 
-        field_values = field.negative()
+        field_values = list(field.negative())
 
         assert None in field_values
         assert has_data_type(field_values, Missing)
@@ -109,7 +109,7 @@ def test_length_validator_with_inclusive():
             required=True,
         )
 
-        field_values = field.negative()
+        field_values = list(field.negative())
 
         has_lower = False
         has_min = False

@@ -1,5 +1,7 @@
 import re
+
 from setuptools import setup, find_packages
+
 
 EXTRAS_REQUIRE = {
     "tests": ["pytest"],
@@ -11,40 +13,39 @@ EXTRAS_REQUIRE = {
 }
 
 
-def find_version(fname):
-    """Attempts to find the version number in the file names fname.
+def find_version(file_name):
+    """
+    Attempts to find the version number in the file names file_name.
     Raises RuntimeError if not found.
     """
-    version = ""
-    with open(fname) as fp:
-        reg = re.compile(r'__version__ = [\'"]([^\'"]*)[\'"]')
-        for line in fp:
-            m = reg.match(line)
-            if m:
-                version = m.group(1)
-                break
-    if not version:
+
+    pattern = re.compile(r'__version__ = \"\d+\.\d+\.\d+\"')
+
+    with open(file_name) as file:
+        lines = ' '.join(map(str.strip, file.readlines()))
+
+    matches = re.findall(pattern, lines)
+
+    if not matches:
         raise RuntimeError("Cannot find version information")
-    return version
+
+    return matches[0].split('"')[-2]
 
 
-def read(fname):
-    with open(fname) as fp:
+def read(file_name):
+    with open(file_name) as fp:
         content = fp.read()
     return content
 
 
 setup(
     name="sgen",
-    version=find_version("src/sgen/__init__.py"),
-    description=(
-        "Generating test data structures"
-    ),
+    version=find_version("sgen/__init__.py"),
+    description="Generating test data structures",
     long_description=read("README.rst"),
     author="Ilya Verner",
     url="https://github.com/Apels1nA/sgen/",
-    packages=find_packages("src"),
-    package_dir={"": "src"},
+    package_dir={"sgen": "sgen"},
     install_requires=["packaging>=17.0"],
     extras_require=EXTRAS_REQUIRE,
     license="MIT",

@@ -1,15 +1,15 @@
 from datetime import date
 
-from tests import has_data_type, Unique
-from fields import Date
-from utils import Missing
-from validate import Range, Equal, OneOf
+from tests import has_data_type
+from sgen.fields import Date
+from sgen.utils import Missing
+from sgen.validate import Range, Equal, OneOf
 
 
 def test_date():
     field = Date()
 
-    positive_values = field.positive()
+    positive_values = list(field.positive())
 
     assert len(positive_values) == 3
 
@@ -21,20 +21,20 @@ def test_date():
 def test_allow_none():
     field = Date(allow_none=False)
 
-    assert None not in field.positive()
+    assert None not in list(field.positive())
 
 
 def test_required():
     field = Date(required=True)
 
-    assert not has_data_type(field.positive(), Missing)
+    assert not has_data_type(list(field.positive()), Missing)
 
 
 def test_default():
     default = 1.23456789
     field = Date(default=default)
 
-    assert default in field.positive()
+    assert default in list(field.positive())
 
 
 def test_positive_data_from():
@@ -43,7 +43,7 @@ def test_positive_data_from():
 
     field = Date(positive_data_from=positive_data_generator)
 
-    assert field.positive() == list(positive_data_generator())
+    assert list(field.positive()) == list(positive_data_generator())
 
 
 # =================================================
@@ -61,7 +61,7 @@ def test_range():
         )
     )
 
-    positive_data = field.positive()
+    positive_data = list(field.positive())
 
     assert min_ in positive_data
     assert max_ in positive_data
@@ -82,7 +82,7 @@ def test_range_inclusive():
         required=True,
     )
 
-    positive_data = field.positive()
+    positive_data = list(field.positive())
 
     assert min_ + field.get_step() in positive_data
     assert max_ - field.get_step() in positive_data
@@ -93,7 +93,7 @@ def test_range_inclusive():
 def test_range_default():
     min_ = date(2022, 1, 1)
     max_ = date(2023, 1, 1)
-    default = Unique()
+    default = date(1996, 12, 3)
 
     field = Date(
         validate=Range(
@@ -106,7 +106,7 @@ def test_range_default():
         default=default,
     )
 
-    positive_data = field.positive()
+    positive_data = list(field.positive())
 
     assert min_ + field.get_step() in positive_data
     assert max_ - field.get_step() in positive_data
@@ -115,13 +115,13 @@ def test_range_default():
 
 
 def test_equal():
-    comparable = Unique()
+    comparable = date(1996, 12, 3)
 
     field = Date(
         validate=Equal(comparable=comparable)
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     assert comparable in field_values
     assert None in field_values
@@ -129,7 +129,7 @@ def test_equal():
 
 
 def test_equal_allow_none_required():
-    comparable = Unique()
+    comparable = date(1996, 12, 3)
 
     field = Date(
         validate=Equal(comparable=comparable),
@@ -137,7 +137,7 @@ def test_equal_allow_none_required():
         required=True,
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     assert comparable in field_values
     assert None not in field_values
@@ -145,8 +145,8 @@ def test_equal_allow_none_required():
 
 
 def test_equal_default():
-    comparable = Unique()
-    default = Unique()
+    comparable = date(1996, 12, 3)
+    default = date(2000, 12, 3)
 
     field = Date(
         validate=Equal(comparable=comparable),
@@ -154,20 +154,24 @@ def test_equal_default():
         default=default,
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     assert default in field_values
     assert None not in field_values
 
 
 def test_one_of():
-    choices = [Unique(), Unique(), Unique()]
+    choices = [
+        date(1996, 12, 3),
+        date(2000, 12, 3),
+        date(2002, 12, 3)
+    ]
 
     field = Date(
         validate=OneOf(choices=choices),
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     for value in choices:
         assert value in field_values
@@ -177,7 +181,11 @@ def test_one_of():
 
 
 def test_one_of_allow_none_required():
-    choices = [Unique(), Unique(), Unique()]
+    choices = [
+        date(1996, 12, 3),
+        date(2000, 12, 3),
+        date(2002, 12, 3)
+    ]
 
     field = Date(
         validate=OneOf(choices=choices),
@@ -185,7 +193,7 @@ def test_one_of_allow_none_required():
         required=True,
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     for value in choices:
         assert value in field_values
@@ -195,8 +203,12 @@ def test_one_of_allow_none_required():
 
 
 def test_one_of_default():
-    choices = [Unique(), Unique(), Unique()]
-    default = Unique()
+    choices = [
+        date(1996, 12, 3),
+        date(2000, 12, 3),
+        date(2002, 12, 3)
+    ]
+    default = date(1991, 12, 3)
 
     field = Date(
         validate=OneOf(choices=choices),
@@ -204,7 +216,7 @@ def test_one_of_default():
         default=default,
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     for value in choices:
         assert value in field_values
