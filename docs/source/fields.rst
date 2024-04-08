@@ -44,7 +44,7 @@ minimum/maximum length by using the :py:class:`Length` validator
         name = fields.String(
             validate=validate.Length(
                 min=10,
-                max=10,
+                max=100,
                 min_inclusive=True,
                 max_inclusive=False,
             )
@@ -76,7 +76,7 @@ or positive, provided that at least one of the ``...inclusive`` parameters is ``
         age = fields.Integer(
             validate=validate.Range(
                 min=10,
-                max=10,
+                max=100,
                 min_inclusive=True,
                 max_inclusive=False,
             )
@@ -99,10 +99,10 @@ or positive, provided that at least one of the ``...inclusive`` parameters is ``
     from sgen import SGen, validate, fields
 
     class User(SGen):
-        age = fields.Float(
+        balance = fields.Float(
             validate=validate.Range(
                 min=10,
-                max=10,
+                max=100,
                 min_inclusive=True,
                 max_inclusive=False,
             )
@@ -149,7 +149,7 @@ Represents lists.
     from sgen import SGen, validate, fields
 
     class User(SGen):
-        age = fields.List(
+        numbers = fields.List(
             data_type=fields.Integer()
         )
 
@@ -170,7 +170,7 @@ Represents nested schemas.
 
 
     class User(SGen):
-        age = fields.Nested(
+        pet = fields.Nested(
             Pet(),
             required=True,
         )

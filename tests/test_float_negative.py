@@ -1,13 +1,13 @@
-from tests import has_data_type, Unique
-from fields import Float
-from utils import Missing
-from validate import Range, Equal, OneOf
+from tests import has_data_type
+from sgen.fields import Float
+from sgen.utils import Missing
+from sgen.validate import Range, Equal, OneOf
 
 
 def test_float():
     field = Float()
 
-    negative_values = field.negative()
+    negative_values = list(field.negative())
 
     assert len(negative_values) == 1
     assert not isinstance(negative_values[0], float)
@@ -16,13 +16,13 @@ def test_float():
 def test_allow_none():
     field = Float(allow_none=False)
 
-    assert None in field.negative()
+    assert None in list(field.negative())
 
 
 def test_required():
     field = Float(required=True)
 
-    assert has_data_type(field.negative(), Missing)
+    assert has_data_type(list(field.negative()), Missing)
 
 
 def test_negative_data_from():
@@ -31,7 +31,7 @@ def test_negative_data_from():
 
     field = Float(negative_data_from=negative_data_from)
 
-    assert field.negative() == list(negative_data_from())
+    assert list(field.negative()) == list(negative_data_from())
 
 
 # =================================================
@@ -49,7 +49,7 @@ def test_range():
         )
     )
 
-    negative_data = field.negative()
+    negative_data = list(field.negative())
 
     assert min_ - 0.01 in negative_data
     assert max_ + 0.01 in negative_data
@@ -70,7 +70,7 @@ def test_range_inclusive():
         required=True,
     )
 
-    negative_data = field.negative()
+    negative_data = list(field.negative())
 
     assert min_ in negative_data
     assert max_ in negative_data
@@ -81,7 +81,7 @@ def test_range_inclusive():
 def test_range_default():
     min_ = -673.94
     max_ = 98.01
-    default = Unique()
+    default = 55.19
 
     field = Float(
         validate=Range(
@@ -94,7 +94,7 @@ def test_range_default():
         default=default,
     )
 
-    negative_data = field.negative()
+    negative_data = list(field.negative())
 
     assert min_ in negative_data
     assert max_ in negative_data
@@ -103,13 +103,13 @@ def test_range_default():
 
 
 def test_equal():
-    comparable = Unique()
+    comparable = 55.19
 
     field = Float(
         validate=Equal(comparable=comparable)
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     assert comparable not in field_values
     assert None not in field_values
@@ -117,7 +117,7 @@ def test_equal():
 
 
 def test_equal_allow_none_required():
-    comparable = Unique()
+    comparable = 55.19
 
     field = Float(
         validate=Equal(comparable=comparable),
@@ -125,7 +125,7 @@ def test_equal_allow_none_required():
         required=True,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     assert comparable not in field_values
     assert None in field_values
@@ -134,8 +134,8 @@ def test_equal_allow_none_required():
 
 
 def test_equal_default():
-    comparable = Unique()
-    default = Unique()
+    comparable = 55.19
+    default = -87.009
 
     field = Float(
         validate=Equal(comparable=comparable),
@@ -143,20 +143,20 @@ def test_equal_default():
         default=default,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     assert None in field_values
     assert default not in field_values
 
 
 def test_one_of():
-    choices = [Unique(), Unique(), Unique()]
+    choices = [1.1, 2.2, 3.3]
 
     field = Float(
         validate=OneOf(choices=choices),
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     for value in choices:
         assert value not in field_values
@@ -167,7 +167,7 @@ def test_one_of():
 
 
 def test_one_of_allow_none_required():
-    choices = [Unique(), Unique(), Unique()]
+    choices = [1.1, 2.2, 3.3]
 
     field = Float(
         validate=OneOf(choices=choices),
@@ -175,7 +175,7 @@ def test_one_of_allow_none_required():
         required=True,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     for value in choices:
         assert value not in field_values
@@ -186,8 +186,8 @@ def test_one_of_allow_none_required():
 
 
 def test_one_of_default():
-    choices = [Unique(), Unique(), Unique()]
-    default = Unique()
+    choices = [1.1, 2.2, 3.3]
+    default = 55.087
 
     field = Float(
         validate=OneOf(choices=choices),
@@ -195,7 +195,7 @@ def test_one_of_default():
         default=default,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     for value in choices:
         assert value not in field_values

@@ -72,17 +72,41 @@ Fields
 
         Generates a common set of negative values for all internal field types
 
+    .. py:method:: set_positive_values()
+
+        :raises NotImplemented: If a method is not implemented in parent class
+
+        .. note::
+            Implement this method in your data type. It should register positive values via  self._register('some_value')
+
+        Generates a common set of negative values for all internal field types
+
+    .. py:method:: set_negative_values()
+
+        :raises NotImplemented: If a method is not implemented in parent class
+
+        .. note::
+            Implement this method in your data type. It should register negative values via  self._register('some_value')
+
+        Generates a common set of negative values for all internal field types
+
     .. py:method:: generate(length: int)
 
         :raises NotImplemented: If a method is not implemented in iterable data types when using a validator :py:class:`Length`
+
+        Returns an iterable object of length ``length``
 
     .. py:method:: get_step()
 
         :raises NotImplemented: If the method is not implemented in numeric data types when using a validator :py:class:`Range`
 
+        Returns the step by which the numeric value will be shifted to obtain negative values (out of the acceptable range of the :py:class:`Range` validator)
+
     .. py:method:: get_other_value(value: Any)
 
         :raises NotImplemented: If the method is not implemented in the data type when using validators :py:class:`Equal`, :py:class:`OneOf`, :py:class:`NoneOf`
+
+        Returns a value of the same type as ``value``, but not equal to ``value``
 
     .. py:method:: _register(for_register: Union[Any, List[Any]])
 
@@ -105,48 +129,38 @@ Fields
         from sgen import fields
 
 
-        class MyType(fields.Field)
+        class MyInt(fields.Field)
 
-            def positive(self):
-                super().positive()
+            def set_positive_values(self):
+                self._register(1)  # Add a valid type value
 
-                if self.positive_data_from is not None:
-                    return self.values
-
-                if not self.validators:
-                    self._register(None)  # Add a valid type value
-
-                return self.values
-
-            def negative(self):
-                super().negative()
-
-                if self.negative_data_from is not None:
-                    return self.values
-
-                self._register('None')  # Add a value that is not an instance of your data type
-
-                return self.values
+            def set_negative_values(self):
+                self._register('not_int')  # Add a value that is not an instance of your data type
 
             def get_other_value(self, value: int) -> int:
                 if value is None:
-                    return MyType
-                return MyType + 1
+                    return 1
+                return value + 1
 
+            def __add__():
+                pass
+
+            def __sub__():
+                pass
 
 .. py:class:: String()
 
-    .. py:method:: positive()
+    .. py:method:: set_positive_values()
 
-        :rtype: List[Union[None, Missing, str]]
+        :rtype: None
 
-        Generates a set of positive values for a type :py:class:`String`
+        Registers a set of positive values for a type :py:class:`String`
 
-    .. py:method:: negative()
+    .. py:method:: set_negative_values()
 
-        :rtype: List[Union[None, Missing, str, int]]
+        :rtype: None
 
-        Generates a set of negative values for a type :py:class:`String`
+        Registers a set of negative values for a type :py:class:`String`
 
     .. py:method:: generate(length: int)
 
@@ -157,10 +171,10 @@ Fields
 
     .. py:method:: get_other_value(value: Optional[str])
 
-        :param str value: Unwanted string value
+        :param str value: Undesired string value
         :rtype: str
 
-        Returns a value of the same type as ``value``, but not equal to ``value``
+        Returns a value of type ``str`` that is not equal to ``value``
 
 
     Class :py:class:`String` is a representation of string data types
@@ -186,17 +200,17 @@ Fields
         :param int step: Step to generate values
 
 
-    .. py:method:: positive()
+    .. py:method:: set_positive_values()
 
-        :rtype: List[Union[None, Missing, int]]
+        :rtype: None
 
-        Generates a set of positive values for a type :py:class:`Integer`
+        Registers a set of positive values for a type :py:class:`Integer`
 
-    .. py:method:: negative()
+    .. py:method:: set_negative_values()
 
-        :rtype: List[Union[None, Missing, int, str]]
+        :rtype: None
 
-        Generates a set of negative values for a type :py:class:`Integer`
+        Registers a set of negative values for a type :py:class:`Integer`
 
     .. py:method:: get_step()
 
@@ -209,7 +223,7 @@ Fields
         :param int value: Undesired number value
         :rtype: int
 
-        Returns a value of the same type as value, but not equal to value
+        Returns a value of type ``int`` that is not equal to ``value``
 
 
     Class :py:class:`Integer` is a representation of an integer data type
@@ -231,17 +245,17 @@ Fields
 
         :param int step: Step to generate values
 
-    .. py:method:: positive()
+    .. py:method:: set_positive_values()
 
-        :rtype: List[Union[None, Missing, float]]
+        :rtype: None
 
-        Generates a set of positive values for a type :py:class:`Float`
+        Registers a set of positive values for a type :py:class:`Float`
 
-    .. py:method:: negative()
+    .. py:method:: set_negative_values()
 
-        :rtype: List[Union[None, Missing, float, str]]
+        :rtype: None
 
-        Generates a set of negative values for a type :py:class:`Float`
+        Registers a set of negative values for a type :py:class:`Float`
 
     .. py:method:: get_step()
 
@@ -254,7 +268,7 @@ Fields
         :param float value: Undesired number value
         :rtype: float
 
-        Returns a value of the same type as ``value``, but not equal to ``value``
+        Returns a value of type ``float`` that is not equal to ``value``
 
 
     Class :py:class:`Float` is a floating point representation
@@ -275,24 +289,24 @@ Fields
 
 .. py:class:: Boolean()
 
-    .. py:method:: positive()
+    .. py:method:: set_positive_values()
 
-        :rtype: List[Union[None, Missing, bool]]
+        :rtype: None
 
-        Generates a set of positive values for a type :py:class:`Boolean`
+        Registers a set of positive values for a type :py:class:`Boolean`
 
-    .. py:method:: negative()
+    .. py:method:: set_negative_values()
 
-        :rtype: List[Union[None, Missing, bool, str]
+        :rtype: None
 
-        Generates a set of negative values for a type :py:class:`Boolean`
+        Registers a set of negative values for a type :py:class:`Boolean`
 
     .. py:method:: get_other_value(value: Optional[bool])
 
         :param bool value: Undesired number value
         :rtype: bool
 
-        Returns a value of the same type as ``value``, but not equal to ``value``
+        Returns a value of type ``bool`` that is not equal to ``value``
 
     Class :py:class:`Boolean` is a representation of the boolean data type
 
@@ -313,24 +327,24 @@ Fields
 
         :param int step: Step to generate values
 
-    .. py:method:: positive()
+    .. py:method:: set_positive_values()
 
-        :rtype: List[Union[None, Missing, datetime]]
+        :rtype: None
 
-        Generates a set of positive values for a type :py:class:`DateTime`
+        Registers a set of positive values for a type :py:class:`DateTime`
 
-    .. py:method:: negative()
+    .. py:method:: set_negative_values()
 
-        :rtype: List[Union[None, Missing, datetime, str]]
+        :rtype: None
 
-        Generates a set of negative values for a type :py:class:`DateTime`
+        Registers a set of negative values for a type :py:class:`DateTime`
 
     .. py:method:: get_other_value(value: Optional[datetime])
 
         :param datetime value: Undesired number value
         :rtype: datetime
 
-        Returns a value of the same type as ``value``, but not equal to ``value``
+        Returns a value of type ``datetime`` that is not equal to ``value``
 
     .. py:method:: get_step()
 
@@ -358,24 +372,24 @@ Fields
 
         :param int step: Step to generate values
 
-    .. py:method:: positive()
+    .. py:method:: set_positive_values()
 
-        :rtype: List[Union[None, Missing, date]]
+        :rtype: None
 
-        Generates a set of positive values for a type :py:class:`Date`
+        Registers a set of positive values for a type :py:class:`Date`
 
-    .. py:method:: negative()
+    .. py:method:: set_negative_values()
 
-        :rtype: List[Union[None, Missing, date, str]]
+        :rtype: None
 
-        Generates a set of negative values for a type :py:class:`Date`
+        Registers a set of negative values for a type :py:class:`Date`
 
     .. py:method:: get_other_value(value: Optional[date])
 
         :param date value: Undesired number value
         :rtype: date
 
-        Returns a value of the same type as ``value``, but not equal to ``value``
+        Returns a value of type ``date`` that is not equal to ``value``
 
     .. py:method:: get_step()
 
@@ -410,17 +424,17 @@ Fields
         Adds a new value/values to the field's list of values if it is not already present
         Additionally, it clears lists of the value ``Missing``, since doing this at the class level :py:class:`SGen` is inconvenient
 
-    .. py:method:: positive()
+    .. py:method:: set_positive_values()
 
-        :rtype: List[Any]
+        :rtype: None
 
-        Generates a set of positive values for a type :py:class:`Collection`
+        Registers a set of positive values for a type :py:class:`Collection`
 
-    .. py:method:: negative()
+    .. py:method:: set_negative_values()
 
-        :rtype: List[Any]
+        :rtype: None
 
-        Generates a set of negative values for a type :py:class:`Collection`
+        Registers a set of negative values for a type :py:class:`Collection`
 
     .. py:method:: generate(length: int)
 
@@ -434,7 +448,7 @@ Fields
         :param list value: Undesired number value
         :rtype: list
 
-        Returns a value of the same type as ``value``, but not equal to ``value``
+        Returns a value of type ``list`` that is not equal to ``value``
 
 
     Class :py:class:`Collection` is a list representation
@@ -458,17 +472,17 @@ Fields
 
         :param SGen data_type: Schema data type
 
-    .. py:method:: positive()
+    .. py:method:: set_positive_values()
 
-        :return: dictionary generator
+        :return: None
 
-        Generates a set of positive values for a type :py:class:`Nested`
+        Registers a set of positive values for a type :py:class:`Nested`
 
-    .. py:method:: negative()
+    .. py:method:: set_negative_values()
 
-        :return: dictionary generator
+        :return: None
 
-        Generates a set of negative values for a type :py:class:`Nested`
+        Registers a set of negative values for a type :py:class:`Nested`
 
     Class :py:class:`Nested` is an implementation of nested entities
 

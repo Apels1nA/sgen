@@ -91,7 +91,7 @@ Days of negative generation values ``invalid_values`` will be included.
 
     class User(SGen):
         name = fields.String(
-            validate=validate.NoneOf(invalid_values=['Kirill', 'Zlatoslava'])
+            validate=validate.NoneOf(invalid_values=['Biba', 'Boba', 'Zlata'])
         )
 
 .. note::

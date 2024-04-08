@@ -1,6 +1,6 @@
 from itertools import product
 
-from fields import (
+from sgen.fields import (
     Nested,
     String,
     Integer,
@@ -8,7 +8,7 @@ from fields import (
     Boolean,
     Collection
 )
-from validate import (
+from sgen.validate import (
     Range,
     Length,
     OneOf,
@@ -35,7 +35,7 @@ def test_nested_simple():
         Boolean().positive(),
     ))
 
-    assert len(datasets_from_sgen) == len(datasets_from_system_library)
+    assert len(datasets_from_sgen) == len(datasets_from_system_library) + 2  # 2 = none + missing
 
 
 def test_nested_with_validators():
@@ -69,4 +69,4 @@ def test_nested_with_validators():
         field_car.positive(),
     ))
 
-    assert len(datasets_from_sgen) == len(datasets_from_system_library)
+    assert len(datasets_from_sgen) == len(datasets_from_system_library) + 2  # 2 = none + missing

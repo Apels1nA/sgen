@@ -54,15 +54,22 @@ class Field(FieldABC):
         self.allow_none = allow_none
         self.required = required
         self.values = ValuesStorage()
+        self.inner_values = []  # Only for Collections
 
     def positive(self):
         self.values = ValuesStorage()
+
         if self.positive_data_from is not None:
-            self._register(list(self.positive_data_from()))
+            yield from self.positive_data_from()
             return
 
         for validator in self.validators:
-            if not isinstance(self, Collection):
+            if isinstance(self, Collection):
+                self.inner_values = list(self.data_type.positive())
+                values = validator.positive(self)
+                for value in values:
+                    self._register(value)
+            else:
                 self._register(validator.positive(self))
 
         if self.allow_none:
@@ -74,14 +81,30 @@ class Field(FieldABC):
         if not self.required:
             self._register(Missing())
 
+        if self.positive_data_from is None and not self.validators:
+            self.set_positive_values()
+
+        yield from self.values
+
     def negative(self):
         self.values = ValuesStorage()
+
         if self.negative_data_from is not None:
-            self._register(list(self.negative_data_from()))
+            yield from self.negative_data_from()
             return
 
         for validator in self.validators:
-            if not isinstance(self, Collection):
+            if isinstance(self, Collection):
+                self.inner_values = list(self.data_type.positive())
+                values = validator.negative(self)
+                for value in values:
+                    self._register(value)
+
+                self.inner_values = list(self.data_type.negative())
+                values = validator.positive(self)
+                for value in values:
+                    self._register(value)
+            else:
                 self._register(validator.negative(self))
 
         if not self.allow_none:
@@ -89,6 +112,17 @@ class Field(FieldABC):
 
         if self.required:
             self._register(Missing())
+
+        if self.positive_data_from is None:
+            self.set_negative_values()
+
+        yield from self.values
+
+    def set_positive_values(self):
+        raise NotImplementedError('Implement this method in your data type')
+
+    def set_negative_values(self):
+        raise NotImplementedError('Implement this method in your data type')
 
     def generate(self, length):
         """Implement this method for the Length validator to work correctly"""
@@ -107,7 +141,7 @@ class Field(FieldABC):
         )
 
     def get_other_value(self, value: Any):
-        """Реализуйте этот метод для корректной работы валидаторов Equal, OneOf и NoneOf"""
+        """Implement this method for the Equal, OneOf и NoneOf validators to work correctly"""
 
         raise NotImplemented(
             "For the Equal, OneOf and NoneOf validators to work, you need"
@@ -129,26 +163,11 @@ class Field(FieldABC):
 class String(Field):
     """String representation"""
 
-    def positive(self) -> List[Union[None, Missing, str]]:
-        super().positive()
+    def set_positive_values(self) -> None:
+        self._register(self.generate(length=randint(1, 10)))
 
-        if self.positive_data_from is not None:
-            return self.values
-
-        if not self.validators:
-            self._register(self.generate(length=randint(1, 10)))
-
-        return self.values
-
-    def negative(self) -> List[Union[None, Missing, str, int]]:
-        super().negative()
-
-        if self.negative_data_from is not None:
-            return self.values
-
+    def set_negative_values(self) -> None:
         self._register(randint(-100, 100))
-
-        return self.values
 
     def generate(self, length: int):
         """
@@ -161,6 +180,8 @@ class String(Field):
         return ''.join(choice(ascii_letters) for _ in range(length))
 
     def get_other_value(self, value: Optional[str]) -> str:
+        """Returns an object of type str and not equal to value"""
+
         if value is None:
             return 'not_comparable'
         return 'not_' + value
@@ -173,33 +194,20 @@ class Integer(Field):
         super().__init__(*args, **kwargs)
         self.step = step
 
-    def positive(self) -> List[Union[None, Missing, int]]:
-        super().positive()
+    def set_positive_values(self) -> None:
+        self._register(randint(-100, 100))
 
-        if self.positive_data_from is not None:
-            return self.values
-
-        if not self.validators:
-            self._register(randint(-100, 100))
-
-        return self.values
-
-    def negative(self) -> List[Union[None, Missing, int, str]]:
-        super().negative()
-
-        if self.negative_data_from is not None:
-            return self.values
-
+    def set_negative_values(self) -> None:
         self._register(
             ''.join(choice(ascii_letters) for _ in range(randint(5, 10)))
         )
-
-        return self.values
 
     def get_step(self):
         return self.step
 
     def get_other_value(self, value: Optional[int]) -> int:
+        """Returns an object of type int and not equal to value"""
+
         if value is None:
             return randint(10, 100000)
         return value + randint(10, 100000)
@@ -212,33 +220,20 @@ class Float(Field):
         super().__init__(*args, **kwargs)
         self.step = step
 
-    def positive(self) -> List[Union[None, Missing, float]]:
-        super().positive()
+    def set_positive_values(self) -> None:
+        self._register(randint(-10000, 10000) / 100)
 
-        if self.positive_data_from is not None:
-            return self.values
-
-        if not self.validators:
-            self._register(randint(-10000, 10000) / 100)
-
-        return self.values
-
-    def negative(self) -> List[Union[None, Missing, float, str]]:
-        super().negative()
-
-        if self.negative_data_from is not None:
-            return self.values
-
+    def set_negative_values(self) -> None:
         self._register(
             ''.join(choice(ascii_letters) for _ in range(randint(5, 10)))
         )
-
-        return self.values
 
     def get_step(self):
         return self.step
 
     def get_other_value(self, value: Optional[float]) -> float:
+        """Returns an object of type float and not equal to value"""
+
         if value is None:
             return randint(1000000, 100000000) / 100
         return value + randint(1000000, 100000000) / 100
@@ -247,30 +242,17 @@ class Float(Field):
 class Boolean(Field):
     """Boolean type representation"""
 
-    def positive(self) -> List[Union[None, Missing, bool]]:
-        super().positive()
+    def set_positive_values(self) -> None:
+        self._register([True, False])
 
-        if self.positive_data_from is not None:
-            return self.values
-
-        if not self.validators:
-            self._register([True, False])
-
-        return self.values
-
-    def negative(self) -> List[Union[None, Missing, bool, str]]:
-        super().negative()
-
-        if self.negative_data_from is not None:
-            return self.values
-
+    def set_negative_values(self) -> None:
         self._register(
             ''.join(choice(ascii_letters) for _ in range(randint(5, 10)))
         )
 
-        return self.values
-
     def get_other_value(self, value: Optional[bool]) -> bool:
+        """Returns an object of type bool and not equal to value"""
+
         if value is None:
             return True
         return not value
@@ -283,31 +265,18 @@ class DateTime(Field):
         super().__init__(*args, **kwargs)
         self.step = step
 
-    def positive(self) -> List[Union[None, Missing, datetime]]:
-        super().positive()
+    def set_positive_values(self) -> None:
+        self._register(datetime.now())
 
-        if self.positive_data_from is not None:
-            return self.values
-
-        if not self.validators:
-            self._register(datetime.now())
-
-        return self.values
-
-    def negative(self) -> List[Union[None, Missing, datetime, str]]:
-        super().negative()
-
-        if self.negative_data_from is not None:
-            return self.values
-
+    def set_negative_values(self) -> None:
         self._register('not_datetime')
-
-        return self.values
 
     def get_step(self) -> timedelta:
         return self.step
 
     def get_other_value(self, value: Optional[datetime]) -> datetime:
+        """Returns an object of type datetime and not equal to value"""
+
         if value is None:
             return datetime.now()
         return value + timedelta(days=randint(1, 365), minutes=randint(1, 60))
@@ -320,33 +289,21 @@ class Date(Field):
         super().__init__(*args, **kwargs)
         self.step = step
 
-    def positive(self) -> List[Union[None, Missing, date]]:
-        super().positive()
+    def set_positive_values(self) -> None:
+        self._register(datetime.now().date())
 
-        if self.positive_data_from is not None:
-            return self.values
-
-        if not self.validators:
-            self._register(datetime.now().date())
-
-        return self.values
-
-    def negative(self) -> List[Union[None, Missing, date, str]]:
-        super().negative()
-
-        if self.negative_data_from is not None:
-            return self.values
-
+    def set_negative_values(self) -> None:
         self._register('not_date')
-
-        return self.values
 
     def get_step(self):
         return self.step
 
     def get_other_value(self, value: date) -> date:
+        """Returns an object of type date and not equal to value"""
+
         if value is None:
             return datetime.now().date()
+
         return value + timedelta(days=randint(1, 365))
 
 
@@ -362,7 +319,6 @@ class Collection(Field):
 
         super().__init__(*args, **kwargs)
         self.data_type = data_type
-        self.inner_values = []
 
     def _register(self, for_register: Union[Any, List[Any]]):
         """
@@ -382,47 +338,17 @@ class Collection(Field):
             if for_register not in self.values:
                 self.values.append(for_register)
 
-    def positive(self) -> List[Any]:
-        super().positive()
-
-        if self.positive_data_from is not None:
-            return self.values
-
+    def set_positive_values(self) -> None:
         self.inner_values = self.data_type.positive()
 
-        for validator in self.validators:
-            values = validator.positive(self)
-            for value in values:
-                self._register(value)
+        for value in self.inner_values:
+            self._register([[value for _ in range(randint(1, 5))]])
 
-        if not self.validators:
-            for value in self.inner_values:
-                self._register([[value for _ in range(randint(1, 5))]])
-        return self.values
-
-    def negative(self) -> List[Any]:
-        super().negative()
-
-        if self.negative_data_from is not None:
-            return self.values
-
-        self.inner_values = self.data_type.positive()
-        for validator in self.validators:
-            values = validator.negative(self)
-            for value in values:
-                self._register(value)
-
+    def set_negative_values(self) -> None:
         self.inner_values = self.data_type.negative()
-        for validator in self.validators:
-            values = validator.positive(self)
-            for value in values:
-                self._register(value)
 
-        if not self.validators:
-            for value in self.inner_values:
-                self._register([[value for _ in range(randint(1, 5))]])
-
-        return self.values
+        for value in self.inner_values:
+            self._register([[value for _ in range(randint(1, 5))]])
 
     def generate(self, length: int) -> List[Any]:
         return [
@@ -431,6 +357,8 @@ class Collection(Field):
         ]
 
     def get_other_value(self, value: list) -> list:
+        """Returns an object of type list and not equal to value"""
+
         if value is None:
             return [self.data_type.get_other_value(value=value)]
         return value * 2
@@ -449,20 +377,8 @@ class Nested(Field):
         super().__init__(*args, **kwargs)
         self.data_type = data_type
 
-    def positive(self):
-        super().positive()
+    def set_positive_values(self) -> None:
+        self._register(list(self.data_type.positive()))
 
-        if self.positive_data_from is not None:
-            return self.values
-
-        for structure in self.data_type.positive():
-            yield structure
-
-    def negative(self):
-        super().negative()
-
-        if self.negative_data_from is not None:
-            return self.values
-
-        for structure in self.data_type.negative():
-            yield structure
+    def set_negative_values(self) -> None:
+        self._register(list(self.data_type.negative()))

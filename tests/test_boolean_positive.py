@@ -1,13 +1,13 @@
 from tests import has_data_type, Unique
-from fields import Boolean
-from utils import Missing
-from validate import Equal, OneOf
+from sgen.fields import Boolean
+from sgen.utils import Missing
+from sgen.validate import Equal, OneOf
 
 
 def test_boolean():
     field = Boolean()
 
-    positive_values = field.positive()
+    positive_values = list(field.positive())
 
     assert len(positive_values) == 4
 
@@ -28,19 +28,19 @@ def test_boolean():
 def test_allow_none():
     field = Boolean(allow_none=False)
 
-    assert None not in field.positive()
+    assert None not in list(field.positive())
 
 
 def test_required():
     fields = Boolean(required=True)
 
-    assert not has_data_type(fields.positive(), Missing)
+    assert not has_data_type(list(fields.positive()), Missing)
 
 
 def test_default():
     field = Boolean(default=False)
 
-    assert False in field.positive()
+    assert False in list(field.positive())
 
 
 def test_positive_data_from():
@@ -49,7 +49,7 @@ def test_positive_data_from():
 
     field = Boolean(positive_data_from=positive_data_generator)
 
-    assert field.positive() == list(positive_data_generator())
+    assert list(field.positive()) == list(positive_data_generator())
 
 
 # ===================================================
@@ -64,7 +64,7 @@ def test_equal():
         validate=Equal(comparable=comparable)
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     assert comparable in field_values
     assert None in field_values
@@ -80,7 +80,7 @@ def test_equal_allow_none_required():
         required=True,
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     assert comparable in field_values
     assert None not in field_values
@@ -97,7 +97,7 @@ def test_equal_default():
         default=default,
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     assert default in field_values
     assert None not in field_values
@@ -110,7 +110,7 @@ def test_one_of():
         validate=OneOf(choices=choices),
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     for value in choices:
         assert value in field_values
@@ -128,7 +128,7 @@ def test_one_of_allow_none_required():
         required=True,
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     for value in choices:
         assert value in field_values
@@ -147,7 +147,7 @@ def test_one_of_default():
         default=default,
     )
 
-    field_values = field.positive()
+    field_values = list(field.positive())
 
     assert default in field_values
     assert None not in field_values

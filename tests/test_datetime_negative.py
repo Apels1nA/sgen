@@ -1,15 +1,15 @@
 from datetime import datetime
 
-from tests import has_data_type, Unique
-from fields import DateTime
-from utils import Missing
-from validate import Range, Equal, OneOf
+from tests import has_data_type
+from sgen.fields import DateTime
+from sgen.utils import Missing
+from sgen.validate import Range, Equal, OneOf
 
 
 def test_datetime():
     field = DateTime()
 
-    negative_values = field.negative()
+    negative_values = list(field.negative())
 
     assert len(negative_values) == 1
     assert not isinstance(negative_values[0], datetime)
@@ -18,13 +18,13 @@ def test_datetime():
 def test_allow_none():
     field = DateTime(allow_none=False)
 
-    assert None in field.negative()
+    assert None in list(field.negative())
 
 
 def test_required():
     field = DateTime(required=True)
 
-    assert has_data_type(field.negative(), Missing)
+    assert has_data_type(list(field.negative()), Missing)
 
 
 def test_negative_data_from():
@@ -33,7 +33,7 @@ def test_negative_data_from():
 
     field = DateTime(negative_data_from=negative_data_from)
 
-    assert field.negative() == list(negative_data_from())
+    assert list(field.negative()) == list(negative_data_from())
 
 
 # =================================================
@@ -51,7 +51,7 @@ def test_range():
         )
     )
 
-    negative_data = field.negative()
+    negative_data = list(field.negative())
 
     assert min_ - field.get_step() in negative_data
     assert max_ + field.get_step() in negative_data
@@ -72,7 +72,7 @@ def test_range_inclusive():
         required=True,
     )
 
-    negative_data = field.negative()
+    negative_data = list(field.negative())
 
     assert min_ in negative_data
     assert max_ in negative_data
@@ -83,7 +83,7 @@ def test_range_inclusive():
 def test_range_default():
     min_ = datetime(2022, 1, 1)
     max_ = datetime(2023, 1, 1)
-    default = Unique()
+    default = datetime(1996, 12, 3)
 
     field = DateTime(
         validate=Range(
@@ -96,7 +96,7 @@ def test_range_default():
         default=default,
     )
 
-    negative_data = field.negative()
+    negative_data = list(field.negative())
 
     assert min_ in negative_data
     assert max_ in negative_data
@@ -105,13 +105,13 @@ def test_range_default():
 
 
 def test_equal():
-    comparable = Unique()
+    comparable = datetime(1996, 12, 3)
 
     field = DateTime(
         validate=Equal(comparable=comparable)
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     assert comparable not in field_values
     assert None not in field_values
@@ -119,7 +119,7 @@ def test_equal():
 
 
 def test_equal_allow_none_required():
-    comparable = Unique()
+    comparable = datetime(1996, 12, 3)
 
     field = DateTime(
         validate=Equal(comparable=comparable),
@@ -127,7 +127,7 @@ def test_equal_allow_none_required():
         required=True,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     assert comparable not in field_values
     assert None in field_values
@@ -136,8 +136,8 @@ def test_equal_allow_none_required():
 
 
 def test_equal_default():
-    comparable = Unique()
-    default = Unique()
+    comparable = datetime(1996, 12, 3)
+    default = datetime(2000, 12, 3)
 
     field = DateTime(
         validate=Equal(comparable=comparable),
@@ -145,20 +145,24 @@ def test_equal_default():
         default=default,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     assert None in field_values
     assert default not in field_values
 
 
 def test_one_of():
-    choices = [Unique(), Unique(), Unique()]
+    choices = [
+        datetime(1996, 12, 3),
+        datetime(2000, 12, 3),
+        datetime(2002, 12, 3)
+    ]
 
     field = DateTime(
         validate=OneOf(choices=choices),
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     for value in choices:
         assert value not in field_values
@@ -169,7 +173,11 @@ def test_one_of():
 
 
 def test_one_of_allow_none_required():
-    choices = [Unique(), Unique(), Unique()]
+    choices = [
+        datetime(1996, 12, 3),
+        datetime(2000, 12, 3),
+        datetime(2002, 12, 3)
+    ]
 
     field = DateTime(
         validate=OneOf(choices=choices),
@@ -177,7 +185,7 @@ def test_one_of_allow_none_required():
         required=True,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     for value in choices:
         assert value not in field_values
@@ -188,8 +196,12 @@ def test_one_of_allow_none_required():
 
 
 def test_one_of_default():
-    choices = [Unique(), Unique(), Unique()]
-    default = Unique()
+    choices = [
+        datetime(1996, 12, 3),
+        datetime(2000, 12, 3),
+        datetime(2002, 12, 3)
+    ]
+    default = datetime(1991, 12, 3)
 
     field = DateTime(
         validate=OneOf(choices=choices),
@@ -197,7 +209,7 @@ def test_one_of_default():
         default=default,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     for value in choices:
         assert value not in field_values

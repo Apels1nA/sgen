@@ -1,13 +1,13 @@
-from fields import (
+from sgen.fields import (
     Collection,
     String,
     Float,
     Boolean,
     Integer,
 )
-from validate import Length
+from sgen.validate import Length
 from tests import Unique, has_data_type
-from utils import Missing
+from sgen.utils import Missing
 
 DATA_TYPES = [
     [String, str],
@@ -21,7 +21,7 @@ def test_simple():
     for type_ in DATA_TYPES:
         field = Collection(data_type=type_[0]())
 
-        field_values = field.positive()
+        field_values = list(field.positive())
 
         assert None in field_values
         assert has_data_type(field_values, Missing)
@@ -37,7 +37,7 @@ def test_simple():
 
         default = Unique()
         field = Collection(data_type=type_[0](), default=default)
-        assert default in field.positive()
+        assert default in list(field.positive())
 
 
 def test_length_validator():
@@ -55,7 +55,7 @@ def test_length_validator():
             required=True,
         )
 
-        field_values = field.positive()
+        field_values = list(field.positive())
 
         assert None not in field_values
         assert not has_data_type(field_values, Missing)

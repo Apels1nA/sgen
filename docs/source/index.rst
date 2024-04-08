@@ -13,4 +13,5 @@ Welcome to SGen's documentation!
    quickstart
    fields
    validators
+   custom_data_types
    api

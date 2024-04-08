@@ -1,13 +1,13 @@
 from tests import has_data_type, Unique
-from fields import Boolean
-from utils import Missing
-from validate import Equal, OneOf
+from sgen.fields import Boolean
+from sgen.utils import Missing
+from sgen.validate import Equal, OneOf
 
 
 def test_boolean():
     field = Boolean()
 
-    negative_values = field.negative()
+    negative_values = list(field.negative())
 
     assert len(negative_values) == 1
     assert not isinstance(negative_values[0], bool)
@@ -16,13 +16,15 @@ def test_boolean():
 def test_allow_none():
     field = Boolean(allow_none=False)
 
-    assert None in field.negative()
+    assert None in list(field.negative())
 
 
 def test_required():
     field = Boolean(required=True)
 
-    assert has_data_type(field.negative(), Missing)
+    negative_values = list(field.negative())
+
+    assert has_data_type(negative_values, Missing)
 
 
 def test_negative_data_from():
@@ -31,7 +33,7 @@ def test_negative_data_from():
 
     field = Boolean(negative_data_from=negative_data_from)
 
-    assert field.negative() == list(negative_data_from())
+    assert list(field.negative()) == list(negative_data_from())
 
 
 # ===================================================
@@ -46,7 +48,7 @@ def test_equal():
         validate=Equal(comparable=comparable)
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     assert comparable not in field_values
     assert None not in field_values
@@ -62,7 +64,7 @@ def test_equal_allow_none_and_required():
         required=True,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     assert comparable not in field_values
     assert None in field_values
@@ -80,7 +82,7 @@ def test_equal_default():
         default=default,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     assert default not in field_values
     assert None in field_values
@@ -93,7 +95,7 @@ def test_one_of():
         validate=OneOf(choices=choices),
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     for value in choices:
         assert value not in field_values
@@ -112,7 +114,7 @@ def test_one_of_allow_none_required():
         required=True,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     for value in choices:
         assert value not in field_values
@@ -132,7 +134,7 @@ def test_one_of_default():
         default=default,
     )
 
-    field_values = field.negative()
+    field_values = list(field.negative())
 
     assert default not in field_values
     assert None in field_values
