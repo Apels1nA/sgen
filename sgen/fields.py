@@ -3,7 +3,7 @@ from string import ascii_letters
 from random import choice, randint
 from datetime import datetime, date, timedelta
 
-from sgen.base import FieldABC, ValidatorABC
+from sgen.base import ValidatorABC
 from sgen.utils import is_iterable_but_not_string, Missing, ValuesStorage
 
 
@@ -20,7 +20,7 @@ __all__ = [
 ]
 
 
-class Field(FieldABC):
+class Field:
     """Base class for data types"""
 
     def __init__(
@@ -310,7 +310,7 @@ class Date(Field):
 class Collection(Field):
     """List view"""
 
-    def __init__(self, data_type: Union[FieldABC, 'SGen'], *args, **kwargs):
+    def __init__(self, data_type: Union[Field, 'SGen'], *args, **kwargs):
         """
         Initializes the collection by adding a new data_type parameter to it
 

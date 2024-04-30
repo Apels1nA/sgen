@@ -55,7 +55,9 @@ class SGen:
         :return: Dictionary generator.
         """
 
-        for dataset in self._generate(fields=self.fields(is_positive=True)):
+        fields = self.fields(is_positive=True)
+
+        for dataset in self._generate(fields=fields):
             yield dict(filter(
                 lambda field_value: not isinstance(field_value[1], Missing),
                 dataset

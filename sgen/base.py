@@ -2,25 +2,25 @@ from abc import ABC, abstractmethod
 from typing import List, Any
 
 
-class FieldABC(ABC):
+class ValidatorABC(ABC):
     @abstractmethod
-    def positive(self):
+    def positive(self, data_type) -> List[Any]:
+        """
+        Generates positive values for a field according to validation parameters
+
+        :param data_type: Object of a concrete data type class (field)
+        :type data_type: Field
+        """
+
         pass
 
     @abstractmethod
-    def negative(self):
-        pass
+    def negative(self, data_type) -> List[Any]:
+        """
+        Generates negative values for a field according to validation parameters
 
-    @abstractmethod
-    def get_other_value(self, value: Any):
-        pass
+        :param data_type: Object of a concrete data type class (field)
+        :type data_type: Field
+        """
 
-
-class ValidatorABC:
-    @abstractmethod
-    def positive(self, data_type: FieldABC) -> List[Any]:
-        pass
-
-    @abstractmethod
-    def negative(self, data_type: FieldABC) -> List[Any]:
         pass
